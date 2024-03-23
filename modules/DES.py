@@ -2,6 +2,7 @@ import numpy as np
 import random
 import time
 import pandas as pd
+from modules.centroids import vanila_centroid, mean_centroid
 
 
 def des_classic(par, fn, lower=None, upper=None, **kwargs):
@@ -288,6 +289,7 @@ def des_classic(par, fn, lower=None, upper=None, **kwargs):
         + (mueff + 2) / (N + mueff + 3)
     )
     tol = control_param("tol", 1e-12)
+    centroid_fc = control_param("centroid_fc", vanila_centroid)
     counteval = 0
     sqrt_N = np.sqrt(N)
 
@@ -376,7 +378,7 @@ def des_classic(par, fn, lower=None, upper=None, **kwargs):
         ############################POI##########################
         #########################################################
         # Store population and selection means
-        pop_mean = np.matmul(population, weights_pop)
+        pop_mean = centroid_fc(population, [weights_pop])#np.matmul(population, weights_pop)
         #########################################################
         #########################################################
 
@@ -440,7 +442,7 @@ def des_classic(par, fn, lower=None, upper=None, **kwargs):
 
             #######################POI####################
             ##############################################
-            new_mean = np.matmul(selected_points, weights)
+            new_mean = centroid_fc(selected_points, [weights])#np.matmul(selected_points, weights)
             ##############################################
             ##############################################
 
@@ -520,7 +522,7 @@ def des_classic(par, fn, lower=None, upper=None, **kwargs):
                 population = population_repaired
             ########################################################
             #######################POI##############################
-            pop_mean = np.matmul(population, weights_pop)
+            pop_mean = centroid_fc(population, [weights_pop])#np.matmul(population, weights_pop)
             ########################################################
             ########################################################
 
@@ -667,7 +669,7 @@ class des_tuner_wrapper(object):
 
 # Example usage:
 if __name__ == "__main__":
-    par = [-100, -100, -100, -100]
+    par = [-100, -100, -100, -100] # starting point
     fn = (
         lambda x: x[0] ** 2 + x[1] ** 2 + x[2] ** 2 + x[3] ** 2
     )  # Example fitness function
@@ -677,7 +679,8 @@ if __name__ == "__main__":
         "stopfitness": 1e-10,
         "lambda": 5,
         "time": 5,
+        "centroid_fc": mean_centroid,
         "diag": True,
-    }
+    } # additional arguments
     result = des_classic(par, fn, **kwargs)
     print(result)
