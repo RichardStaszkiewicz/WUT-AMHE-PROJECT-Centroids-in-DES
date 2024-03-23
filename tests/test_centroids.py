@@ -22,7 +22,7 @@ class TestVanilla(object):
     def test_one_point(self):
         p = np.array([
             [1.5, 6.8]
-        ])
+        ]).T
         w = np.array([
             1.0
         ])
@@ -36,10 +36,10 @@ class TestVanilla(object):
             [5.8, 6.1],
             [8.4, 7.4],
             [1.2, 1.6],
-        ])
+        ]).T
         w = np.array([
             1, 1, 1, 1
-        ]).T
+        ])
         res = vanila_centroid(p, [w])
 
         assert res == pytest.approx([16.6, 17.6])
@@ -50,10 +50,10 @@ class TestVanilla(object):
             [5.8, 6.1],
             [8.4, 7.4],
             [1.2, 1.6],
-        ])
+        ]).T
         w = np.array([
             2, 1, 0.5, 2
-        ]).T
+        ])
         res = vanila_centroid(p, [w])
 
         assert res == pytest.approx([14.8, 18.])
@@ -61,7 +61,7 @@ class TestVanilla(object):
     def test_zero_point(self):
         p = np.array([
             [0.0, 0.0]
-        ])
+        ]).T
         w = np.array([
             1.0
         ])
@@ -75,7 +75,7 @@ class TestVanilla(object):
             [1, 1],
             [1, 1],
             [1, 1]
-        ])
+        ]).T
         w = np.array([
             1.0,
             1.0,
@@ -89,7 +89,7 @@ class TestVanilla(object):
     def test_zero_weight(self):
         p = np.array([
             [1.5, 6.8]
-        ])
+        ]).T
         w = np.array([
             0.0
         ])
@@ -102,7 +102,7 @@ class TestMean(object):
     def test_one_point(self):
         p = np.array([
             [1.5, 6.8]
-        ])
+        ]).T
         res = mean_centroid(p)
 
         assert res == pytest.approx([1.5, 6.8])
@@ -113,7 +113,7 @@ class TestMean(object):
             [5.8, 6.1],
             [8.4, 7.4],
             [1.2, 1.6],
-        ])
+        ]).T
         res = mean_centroid(p)
 
         assert res == pytest.approx([4.15, 4.4])
@@ -121,7 +121,7 @@ class TestMean(object):
     def test_zero_point(self):
         p = np.array([
             [0.0, 0.0]
-        ])
+        ]).T
         res = mean_centroid(p)
 
         assert res == pytest.approx([0.0, 0.0])
@@ -132,7 +132,7 @@ class TestMean(object):
             [1, 1],
             [1, 1],
             [1, 1]
-        ])
+        ]).T
         res = mean_centroid(p)
 
         assert res == pytest.approx([1.0, 1.0])
@@ -142,7 +142,7 @@ class TestMedian(object):
     def test_one_point(self):
         p = np.array([
             [1.5, 6.8]
-        ])
+        ]).T
         res = median_centroid(p)
 
         assert res == pytest.approx([1.5, 6.8])
@@ -153,7 +153,7 @@ class TestMedian(object):
             [5.8, 6.1],
             [8.4, 7.4],
             [1.2, 1.6],
-        ])
+        ]).T
         res = median_centroid(p)
 
         assert res == pytest.approx([3.5, 4.3])
@@ -161,7 +161,7 @@ class TestMedian(object):
     def test_zero_point(self):
         p = np.array([
             [0.0, 0.0]
-        ])
+        ]).T
         res = median_centroid(p)
 
         assert res == pytest.approx([0.0, 0.0])
@@ -172,7 +172,7 @@ class TestMedian(object):
             [1, 1],
             [1, 1],
             [1, 1]
-        ])
+        ]).T
         res = median_centroid(p)
 
         assert res == pytest.approx([1.0, 1.0])
@@ -182,7 +182,7 @@ class TestInterquartile(object):
     def test_one_point(self):
         p = np.array([
             [1.5, 6.8]
-        ])
+        ]).T
         res = interquartile_centroid(p, [50])
 
         assert res == pytest.approx([1.5, 6.8])
@@ -193,7 +193,7 @@ class TestInterquartile(object):
             [5.8, 6.1],
             [8.4, 7.4],
             [1.2, 1.6],
-        ])
+        ]).T
         res = interquartile_centroid(p, [10])
         assert res == pytest.approx([4.41, 4.44])
         res = interquartile_centroid(p, [20])
@@ -204,7 +204,7 @@ class TestInterquartile(object):
     def test_zero_point(self):
         p = np.array([
             [0.0, 0.0]
-        ])
+        ]).T
         res = interquartile_centroid(p, [50])
 
         assert res == pytest.approx([0.0, 0.0])
@@ -215,7 +215,7 @@ class TestInterquartile(object):
             [1, 1],
             [1, 1],
             [1, 1]
-        ])
+        ]).T
         res = interquartile_centroid(p, [10])
         assert res == pytest.approx([1, 1])
         res = interquartile_centroid(p, [20])
@@ -228,7 +228,7 @@ class TestWindsor(object):
     def test_one_point(self):
         p = np.array([
             [1.5, 6.8]
-        ])
+        ]).T
         res = windsor_centroid(p, [10])
 
         assert res == pytest.approx([1.5, 6.8])
@@ -239,7 +239,7 @@ class TestWindsor(object):
             [5.8, 6.1],
             [8.4, 7.4],
             [1.2, 1.6],
-        ])
+        ]).T
         res = windsor_centroid(p, [10])
         assert res == pytest.approx([3.955, 4.37])
         res = windsor_centroid(p, [20])
@@ -250,7 +250,7 @@ class TestWindsor(object):
     def test_zero_point(self):
         p = np.array([
             [0.0, 0.0]
-        ])
+        ]).T
         res = windsor_centroid(p, [10])
 
         assert res == pytest.approx([0.0, 0.0])
@@ -261,7 +261,7 @@ class TestWindsor(object):
             [1, 1],
             [1, 1],
             [1, 1]
-        ])
+        ]).T
         res = windsor_centroid(p, [10])
 
         assert res == pytest.approx([1.0, 1.0])

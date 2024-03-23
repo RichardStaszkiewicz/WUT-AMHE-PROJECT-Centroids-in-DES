@@ -5,15 +5,15 @@ def vanila_centroid(population, args=None):
     """
     args[0] = weights_pop
     """
-    return np.matmul(args[0], population)
+    return np.matmul(population, args[0])
 
 
 def mean_centroid(population, args=None):
-    return population.mean(axis=0)
+    return population.T.mean(axis=0)
 
 
 def median_centroid(population, args=None):
-    return np.median(population, axis=0)
+    return np.median(population.T, axis=0)
 
 
 def interquartile_centroid(population, args=None):
@@ -21,8 +21,8 @@ def interquartile_centroid(population, args=None):
     args[0] = percentile to cut (int)
     """
     iqr = np.percentile(
-        population, 100-args[0], axis=0) - np.percentile(population, args[0], axis=0)
-    return np.percentile(population, args[0], axis=0) + iqr/2
+        population.T, 100-args[0], axis=0) - np.percentile(population.T, args[0], axis=0)
+    return np.percentile(population.T, args[0], axis=0) + iqr/2
 
 
 def windsor_centroid(population, args=None):
@@ -37,6 +37,7 @@ def windsor_centroid(population, args=None):
         numpy.ndarray: Windsorized mean of the input array along the 0 axis.
     """
     def windsor_mean(population):
+        population = population.T
         lower_percentile = np.percentile(population, args[0])
         upper_percentile = np.percentile(population, 100 - args[0])
 
@@ -49,4 +50,4 @@ def windsor_centroid(population, args=None):
         # Calculate the mean
         return np.mean(population)
 
-    return np.apply_along_axis(windsor_mean, 0, population)
+    return np.apply_along_axis(windsor_mean, 0, population.T)
