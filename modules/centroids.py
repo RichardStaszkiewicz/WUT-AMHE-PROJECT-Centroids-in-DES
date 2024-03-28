@@ -15,7 +15,9 @@ def mean_centroid(population, args=None):
 def median_centroid(population, args=None):
     return np.median(population.T, axis=0)
 
-#TODO: Refactor interquartile and windsor to handle changing percentiles
+# TODO: Refactor interquartile and windsor to handle changing percentiles
+
+
 def interquartile_centroid(population, args=None):
     """
     args[0] = percentile to cut (int)
@@ -56,3 +58,7 @@ def windsor_centroid(population, args=None):
         # Calculate the mean
         return np.mean(population)
     return np.apply_along_axis(windsor_mean, 0, population.T)
+
+
+ALL_CENTROIDS = [vanila_centroid,  mean_centroid,
+                 median_centroid, interquartile_centroid, windsor_centroid]
