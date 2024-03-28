@@ -144,7 +144,8 @@ class TrialRunner:
         except FileExistsError as _:
             pass
 
-        with multiprocessing.Pool() as pool:
+        print(f"Running experiments on {self._max_procs} cores")
+        with multiprocessing.Pool(self._max_procs) as pool:
             pool.map(self.run_one_experiment, self._config.experiments)
 
     @classmethod
