@@ -43,6 +43,7 @@ class Trial:
         params = copy(default_params)
         params["lower"] = f.input_domain.T[0]
         params["upper"] = f.input_domain.T[1]
+        params["budget"] = params["lambda"] * 1000 if not params["budget"] else params["budget"]
 
         constraints = f.input_domain.T[0]
 
