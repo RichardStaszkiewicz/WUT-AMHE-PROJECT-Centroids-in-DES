@@ -43,7 +43,7 @@ class Trial:
         params = copy(default_params)
         params["lower"] = f.input_domain.T[0]
         params["upper"] = f.input_domain.T[1]
-        params["budget"] = params["lambda"] * 1000 if not params["budget"] else params["budget"]
+        params["budget"] = params["lambda"] * 1000 if not "budget" in params or params["budget"] is None else params["budget"]
 
         constraints = f.input_domain.T[0]
 
@@ -85,9 +85,7 @@ class TrialConfig:
         config = cls()
         for f_raw in funcs:
             for dim in dims:
-                if not f_raw.is_dim_compatible(dim):
-                    print(f"{f_raw.name} incompatible with dim={dim}")
-                    continue
+                print("Config", f_raw.__qualname__, dim)
                 for rep in range(repetitions):
                     for centroid in centroids:
                         try:
@@ -100,8 +98,7 @@ class TrialConfig:
                                     default_params
                                 ))
                         except Exception as e:
-                            # print(f"{e}")
-                            pass
+                            print(f"ERROR: {e}")
         return config
 
 
