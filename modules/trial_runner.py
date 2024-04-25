@@ -85,7 +85,7 @@ class TrialConfig:
         config = cls()
         for f_raw in funcs:
             for dim in dims:
-                print("Config", f_raw.__qualname__, dim)
+                # print("Config", f_raw.__qualname__, dim)
                 for rep in range(repetitions):
                     for centroid in centroids:
                         try:
@@ -109,14 +109,22 @@ class TrialResult:
     trial: Trial
     logs: object
 
-    def get_dump_path(self):
-        return f'{RESULTS_FOLDER}/{self.get_descriptor()}'
+    def get_dump_path(self, results_folder: str = RESULTS_FOLDER):
+        return f'{results_folder}/{self.get_descriptor()}'
 
     def get_descriptor(self):
         return f"{self.trial.centroid.__qualname__};{self.trial.f.name};{self.trial.dim};{self.trial.repetition}"
 
+    def get_key_ommit_repetition(self):
+        return self.trial.centroid.__qualname__, self.trial.f.name, self.trial.dim
+
     @classmethod
-    def get_path_from_parts(cls, centroid: callable, f: object, dim: int, repetition: int):
+    def load_from_trial(cls, results_folder: str, trial: Trial):
+        data = np.load(cls.get_path_from_parts(results_folder, trial.centroid, trial.f, trial.dim, trial.repetition)+".npy", allow_pickle=True).tolist()
+        return cls(trial, data)
+
+    @staticmethod
+    def get_path_from_parts(results_folder: str, centroid: callable, f: object, dim: int, repetition: int):
         """Creates a dump path from component parts to read from
 
         Args:
@@ -126,7 +134,7 @@ class TrialResult:
             repetition (int): repetition number
         """
         descriptor = f"{centroid.__qualname__};{f.name};{dim};{repetition}"
-        return f'{RESULTS_FOLDER}/{descriptor}'
+        return f'{results_folder}/{descriptor}'
 
 
 class TrialRunner:
