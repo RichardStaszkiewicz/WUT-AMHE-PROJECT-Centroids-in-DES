@@ -116,6 +116,9 @@ class TrialResult:
         return f"{self.trial.centroid.__qualname__};{self.trial.f.name};{self.trial.dim};{self.trial.repetition}"
 
     def get_key_ommit_repetition(self):
+        """Key for identifying experiments. Does not include the repetition number.
+        key = (centroid name, function name, dimentionality)
+        """
         return self.trial.centroid.__qualname__, self.trial.f.name, self.trial.dim
 
     @classmethod
