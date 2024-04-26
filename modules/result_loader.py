@@ -94,7 +94,8 @@ class RelevantDataProcessor:
         print("Saving data")
         np.save(path, data_processed, allow_pickle=True)
 
-    def load_prepared_relevant_data(self, path: str):
+    @staticmethod
+    def load_prepared_relevant_data(path: str):
         """Loads previously processed relevant data, look at _preprocessing to see what fields are available
         """
         return np.load(path, allow_pickle=True).tolist()
