@@ -20,13 +20,14 @@ class TestTrials:
         )
         assert str(trial) == 'Ackley @ dim=2, centr=vanila_centroid, rep=0'
 
-    def test_run_example_experiment(self):
+    def test_run_example_experiment(self, tmpdir):
         bench_funcs = bench.get_functions(None)[0:3]
         trial = Trial.from_raw_f(
             bench_funcs[0], 2, ALL_CENTROIDS[0], 0, DEFAULT_PARAMS
         )
-
-        TrialRunner.run_one_experiment(trial)
+        path = tmpdir.mkdir("res")
+        runner = TrialRunner(TrialConfig([trial]), results_folder=path)
+        runner.run_one_experiment(trial)
 
 
 class TestConfig:

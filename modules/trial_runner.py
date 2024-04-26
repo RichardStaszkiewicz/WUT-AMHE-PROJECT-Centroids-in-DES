@@ -143,13 +143,14 @@ class TrialResult:
 class TrialRunner:
     BASE_SALT: int = 999
 
-    def __init__(self, trial_config: TrialConfig, max_procs: int = multiprocessing.cpu_count()) -> None:
+    def __init__(self, trial_config: TrialConfig, max_procs: int = multiprocessing.cpu_count(), results_folder: str = RESULTS_FOLDER) -> None:
         self._max_procs = min(multiprocessing.cpu_count(), max_procs)
         self._config = trial_config
+        self._results_folder = results_folder
 
     def run_all(self):
         try:
-            os.mkdir(RESULTS_FOLDER)
+            os.mkdir(self._results_folder)
         except FileExistsError as _:
             pass
 
@@ -157,13 +158,11 @@ class TrialRunner:
         with multiprocessing.Pool(self._max_procs) as pool:
             pool.map(self.run_one_experiment, self._config.experiments)
 
-    @classmethod
-    def run_one_experiment(cls, trial: Trial):
+    def run_one_experiment(self, trial: Trial):
         print(f"Processing {trial}\n", end="")
-        np.random.seed(cls.BASE_SALT + trial.repetition)
+        np.random.seed(self.BASE_SALT + trial.repetition)
         result = des_classic(trial.constraints, trial.f, **trial.params)
-        cls._save_result(TrialResult(trial, result))
+        self._save_result(TrialResult(trial, result))
 
-    @classmethod
-    def _save_result(cls, result: TrialResult):
-        np.save(result.get_dump_path(), result.logs, allow_pickle=True)
+    def _save_result(self, result: TrialResult):
+        np.save(result.get_dump_path(self._results_folder), result.logs, allow_pickle=True)
