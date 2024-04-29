@@ -1,7 +1,10 @@
 from modules.trial_runner import *
 import numpy as np
-from Python_Benchmark_Test_Optimization_Function_Single_Objective.pybenchfunction.function import XinSheYang
+from Python_Benchmark_Test_Optimization_Function_Single_Objective.pybenchfunction.function import (
+    XinSheYang,
+)
 from modules.centroids import ALL_CENTROIDS
+import matplotlib.pyplot as plt
 
 
 class RelevantDataProcessor:
@@ -10,8 +13,7 @@ class RelevantDataProcessor:
         self._logs_folder = logs_foler
 
     def _extraction(self):
-        """Extracts population bestval stats, counts and total best values.
-        """
+        """Extracts population bestval stats, counts and total best values."""
         data_raw = {}
         print("Extracting relevant data")
         for trial in self._trials:
@@ -20,13 +22,11 @@ class RelevantDataProcessor:
                 key = trial_result.get_key_ommit_repetition()
 
                 if key not in data_raw:
-                    data_raw[key] = {
-                        "bestVals": [],
-                        "counts": [],
-                        "value": []
-                    }
+                    data_raw[key] = {"bestVals": [], "counts": [], "value": []}
                 # Save relevant data
-                data_raw[key]["bestVals"].append(np.squeeze(trial_result.logs["diagnostic"]["bestVal"]))
+                data_raw[key]["bestVals"].append(
+                    np.squeeze(trial_result.logs["diagnostic"]["bestVal"])
+                )
                 data_raw[key]["counts"].append(trial_result.logs["counts"])
                 data_raw[key]["value"].append(trial_result.logs["value"])
             except Exception as e:
@@ -52,15 +52,17 @@ class RelevantDataProcessor:
                 min_count = 0  # count for finding the min_par TODO: MINIMALIZACJA?
                 min_value = 1e9
 
-                avg_count = sum(d["function"] for d in data_raw[key]["counts"])/reps
-                avg_value = sum(data_raw[key]["value"])/reps
+                avg_count = sum(d["function"] for d in data_raw[key]["counts"]) / reps
+                avg_value = sum(data_raw[key]["value"]) / reps
 
                 best_vals_raw = data_raw[key]["bestVals"]
                 max_length = max(len(pop) for pop in best_vals_raw)
-                masked_vectors = np.ma.masked_all((len(best_vals_raw), max_length), dtype=np.float)
+                masked_vectors = np.ma.masked_all(
+                    (len(best_vals_raw), max_length), dtype=np.float64
+                )
 
                 for i, vec in enumerate(best_vals_raw):
-                    masked_vectors[i, :len(vec)] = vec
+                    masked_vectors[i, : len(vec)] = vec
 
                 avg_best_vals = np.ma.mean(masked_vectors, axis=0)
                 std_best_vals = np.ma.std(masked_vectors, axis=0)
@@ -96,8 +98,7 @@ class RelevantDataProcessor:
 
     @staticmethod
     def load_prepared_relevant_data(path: str):
-        """Loads previously processed relevant data, look at _preprocessing to see what fields are available
-        """
+        """Loads previously processed relevant data, look at _preprocessing to see what fields are available"""
         return np.load(path, allow_pickle=True).tolist()
 
 
@@ -131,3 +132,50 @@ class RelevantDataStatistics:
                 result[fun_name][dim] = sorted(result[fun_name][dim])
 
         return result
+
+    def filter_graph_data(self, constraints: tuple):
+        """
+        constraints:    touple ([str], [str], [int]) which defines the graph to build. It filters the trials to inclued in the research.
+                        Setting it to None includes all observations of such category
+        """
+        filtered_data = dict()
+        for tid in self._relevant_data.keys():
+            x = [i is None for i in constraints]  # [1 0 1]
+            if not sum(
+                [0 if (x[i]) else tid[i] not in constraints[i] for i in range(len(x))]
+            ):
+                filtered_data[tid] = self._relevant_data[tid]
+        return filtered_data
+
+    def generate_convergence_curves_for_fc_x_dim(
+        self, save="./results/graphics/convergence", verbose=False, every=(10, 50)
+    ):
+        """
+        data - dict() the dictionary of trials named with the (centroid name, function name, dimensionality) convention
+        """
+        for fc in np.unique([x[1] for x in list(self._relevant_data.keys())]):
+            for dim in np.unique([x[2] for x in list(self._relevant_data.keys())]):
+                graph_data = self.filter_graph_data((None, [fc], [dim]))
+                fig, ax = plt.subplots()
+                for centroid, col, x in zip([x.__qualname__ for x in ALL_CENTROIDS], ['r', 'g', 'b', 'y', 'm'], list(range(5))):
+                    try:
+                        ax.errorbar(
+                            list(range(
+                                len(graph_data[(centroid, fc, dim)]["best_vals_avg"])
+                            )),
+                            graph_data[(centroid, fc, dim)]["best_vals_avg"],
+                            fmt=col,
+                            yerr=graph_data[(centroid, fc, dim)]["best_vals_std"],
+                            label=f"{centroid}",
+                            errorevery=(int(every[0] + x*0.2*every[1]), every[1])
+
+                        )
+                    except Exception as e:
+                        if verbose:
+                            print(f"could not find {centroid} in {fc, dim}... Error: {e}")
+                ax.legend()
+                fig.suptitle(f"{fc}, dim={dim}")
+                ax.set_yscale('log')
+                fig.savefig(f"{save}/{fc}-{dim}-convergence.png")
+                fig.clear()
+                plt.close()
